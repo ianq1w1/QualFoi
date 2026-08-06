@@ -5,15 +5,15 @@ public class ChatMessage {
     private MessageType type;
     private String sender;
     private String content;
-    private String groupId;
+//  private String groupId;
 
     public ChatMessage() {}
 
-    public ChatMessage(MessageType type, String sender, String content, String groupId) {
+    public ChatMessage(MessageType type, String sender, String content) {
         this.type = type;
         this.sender = sender;
         this.content = content;
-        this.groupId = groupId;
+//        this.groupId = groupId;
     }
 
     public MessageType getType() {
@@ -40,6 +40,7 @@ public class ChatMessage {
         this.content = content;
     }
 
+    /* 
     public String getGroupId() {
         return groupId;
     }
@@ -47,7 +48,7 @@ public class ChatMessage {
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
-
+    */
  
     
 }

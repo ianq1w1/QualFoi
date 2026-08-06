@@ -22,12 +22,12 @@ public class WSlistener{
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
-        String group = (String) headerAccessor.getSessionAttributes().get("group");
+        String usuario = (String) headerAccessor.getSessionAttributes().get("usuario");
+        //String group = (String) headerAccessor.getSessionAttributes().get("group");
 
-        if (username != null && group != null) {
-            ChatMessage leaveMsg = new ChatMessage(MessageType.LEAVE, username, "saiu do grupo", group);
-            messagingTemplate.convertAndSend("/topic/" + group, leaveMsg);
+        if (usuario != null ) {
+            ChatMessage leaveMsg = new ChatMessage(MessageType.LEAVE, usuario, "vazou do chat :( ");
+            messagingTemplate.convertAndSend("/topico/geral" , leaveMsg);
         }
     }
 }

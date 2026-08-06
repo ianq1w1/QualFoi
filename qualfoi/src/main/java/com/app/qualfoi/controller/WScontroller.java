@@ -1,32 +1,39 @@
 package com.app.qualfoi.controller;
 
-import org.springframework.messaging.handler.annotation.DestinationVariable;
+//import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 import com.app.qualfoi.model.ChatMessage;
-import com.app.qualfoi.model.MessageType;
+//import com.app.qualfoi.model.MessageType;
+import com.app.qualfoi.service.ChatMessageService;
+
 
 @Controller
 public class WScontroller {
 
-    @MessageMapping("/chat/{groupId}/join")
-    @SendTo("/topic/{groupId}")
-    public ChatMessage join(@DestinationVariable String groupId, SimpMessageHeaderAccessor headerAccessor) {
+    private ChatMessageService service;
 
-        String nomeAnonimo = "Mano-" + 1;
-        headerAccessor.getSessionAttributes().put("username", nomeAnonimo);
-        headerAccessor.getSessionAttributes().put("group", groupId);
-
-        return new ChatMessage(MessageType.JOIN, nomeAnonimo, "entrou no grupo", groupId);
+    public WScontroller(ChatMessageService service){
+        this.service = service;
     }
 
-    @MessageMapping("/chat/{groupId}/send")
-    @SendTo("/topic/{groupId}")
-    public ChatMessage send(@DestinationVariable String groupId, ChatMessage message) {
-        message.setType(MessageType.CHAT);
-        return message;
+    @MessageMapping("/chat/geral/join")
+    @SendTo("/topico/geral")
+    public ChatMessage join(SimpMessageHeaderAccessor headerAccessor) {
+        String nomeAnonimo = service.gerarNome()
+        headerAccessor.getSessionAttributes().put("usuario", nomeAnonimo);
+        //headerAccessor.getSessionAttributes().put("group", groupId);
+        return service.entradaMessage(nomeAnonimo);
+       // return new ChatMessage(MessageType.JOIN, nomeAnonimo, "entrou no grupo");
+    }
+
+    @MessageMapping("/chat/geral/send")
+    @SendTo("/topic/geral")
+    public ChatMessage send(ChatMessage message) {
+        return service.enviarMessage(message);
+        //return service;
     }
 }
