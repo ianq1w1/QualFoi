@@ -23,7 +23,7 @@ public class WScontroller {
     @MessageMapping("/chat/geral/join")
     @SendTo("/topico/geral")
     public ChatMessage join(SimpMessageHeaderAccessor headerAccessor) {
-        String nomeAnonimo = service.gerarNome()
+        String nomeAnonimo = service.gerarNome();
         headerAccessor.getSessionAttributes().put("usuario", nomeAnonimo);
         //headerAccessor.getSessionAttributes().put("group", groupId);
         return service.entradaMessage(nomeAnonimo);
@@ -31,8 +31,9 @@ public class WScontroller {
     }
 
     @MessageMapping("/chat/geral/send")
-    @SendTo("/topic/geral")
+    @SendTo("/topico/geral")
     public ChatMessage send(ChatMessage message) {
+        System.out.println(message);
         return service.enviarMessage(message);
         //return service;
     }

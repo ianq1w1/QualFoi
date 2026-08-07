@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Geral</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@6/bundles/stomp.umd.min.js"></script>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 40px auto; }
+        #messages { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
+        .join, .leave { color: gray; font-style: italic; }
+        .chat { margin: 4px 0; }
+    </style>
+</head>
+<body>
+    <h2>Chat Geral</h2>
+    <div id="messages"></div>
+    <input id="msgInput" placeholder="Digite sua mensagem..." onkeypress="if(event.key==='Enter') enviar()" />
+    <button onclick="enviar()">Enviar</button>
+
+    <script>
+        const client = new StompJs.Client({
+            webSocketFactory: () => new SockJS("http://localhost:8081/qf-chat"),
+
+            onConnect: () => {
+                console.log("Conectado!");
+
+                // se inscreve no tópico ANTES de mandar o join,
+                // pra garantir que vai receber a própria confirmação de entrada
+                client.subscribe("/topico/geral", (frame) => {
+                    const msg = JSON.parse(frame.body);
+                    exibirMensagem(msg);
+                });
+
+                // dispara o join automaticamente ao conectar
+                client.publish({
+                    destination: "/app/chat/geral/join",
+                    body: JSON.stringify({})
+                });
+            },
+
+            onStompError: (frame) => {
+                console.error("Erro STOMP:", frame.headers['message'], frame.body);
+            }
+        });
+
+        client.activate();
+
+        function enviar() {
+            const input = document.getElementById("msgInput");
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            client.publish({
+                destination: "/app/chat/geral/send",
+                body: JSON.stringify({ content: texto })
+            });
+
+            input.value = "";
+        }
+
+        function exibirMensagem(msg) {
+            const div = document.getElementById("messages");
+            const p = document.createElement("p");
+
+            if (msg.type === "JOIN") {
+                p.className = "join";
+                p.textContent = `— ${msg.sender} entrou no grupo —`;
+            } else if (msg.type === "LEAVE") {
+                p.className = "leave";
+                p.textContent = `— ${msg.sender} saiu do grupo —`;
+            } else {
+                p.className = "chat";
+                p.textContent = `${msg.sender}: ${msg.content}`;
+            }
+
+            div.appendChild(p);
+            div.scrollTop = div.scrollHeight; // rola pra última mensagem
+        }
+    </script>
+</body>
+</html>
